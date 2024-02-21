@@ -10,7 +10,6 @@ while (True):
 
     # IMAGE PROCESSING
     ret, img = vid.read()
-    kernel = np.ones((1, 1), np.uint8)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blur = cv2.blur(gray, (3, 3))
     edges = cv2.Canny(blur, 50, 150, apertureSize=3)
@@ -39,9 +38,9 @@ while (True):
             x1_1, y1_1, x2_1, y2_1 = line1[0]
 
             if x2_1 - x1_1 == 0:
-                slope_1 = 100
+                slope1 = 100
             else:
-                slope_1 = (y2_1 - y1_1) / (x2_1 - x1_1)
+                slope1 = (y2_1 - y1_1) / (x2_1 - x1_1)
 
             cv2.line(img, (x1_1, y1_1), (x2_1, y2_1), (255, 0, 0), 6)
 
@@ -50,21 +49,21 @@ while (True):
                 x1_2, y1_2, x2_2, y2_2 = line2[0]
 
                 if x2_2 - x1_2 == 0:
-                    slope_2 = 100
+                    slope2 = 100
                 else:
-                    slope_2 = (y2_2 - y1_2) / (x2_2 - x1_2)
+                    slope2 = (y2_2 - y1_2) / (x2_2 - x1_2)
 
-                slopedifference = abs(slope_2 - slope_1)
+                slopedifference = abs(slope2 - slope1)
 
                 if slopedifference > 0.2:
                     pass
                 else:
-                    mid_x1 = int((x1_1 + x1_2) / 2)
-                    mid_y1 = int((y1_1 + y1_2) / 2)
-                    mid_x2 = int((x2_1 + x2_2) / 2)
-                    mid_y2 = int((y2_1 + y2_2) / 2)
+                    x1avg = int((x1_1 + x1_2) / 2)
+                    y1avg = int((y1_1 + y1_2) / 2)
+                    x2avg = int((x2_1 + x2_2) / 2)
+                    y2avg = int((y2_1 + y2_2) / 2)
 
-                    midlines.append(((mid_x1, mid_y1), (mid_x2, mid_y2)))
+                    midlines.append(((x1avg, y1avg), (x2avg, y2avg)))
 
 
         # DRAW MIDLINES
@@ -87,3 +86,11 @@ while (True):
 vid.release()
 cv2.destroyAllWindows()
 
+
+# PROGRAMMING WORKS CITED
+
+# Video capture and video display (Lines 1-12, 77-88) https://docs.opencv.org/4.x/dd/d43/tutorial_py_video_display.html
+# Hough Lines detection (Lines 28, 32, 39, 50) https://docs.opencv.org/4.x/d6/d10/tutorial_py_houghlines.html
+# Masking (Lines 18-25): https://stackoverflow.com/questions/11492214/opencv-via-python-is-there-a-fast-way-to-zero-pixels-outside-a-set-of-rectangle
+# OpenCV rectangle (Line 75) https://www.geeksforgeeks.org/python-opencv-cv2-rectangle-method/
+# OpenCV line (Lines 46, 72) https://www.geeksforgeeks.org/python-opencv-cv2-line-method/
