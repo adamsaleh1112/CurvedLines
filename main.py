@@ -15,37 +15,40 @@ while (True):
     edges = cv2.Canny(blur, 50, 150, apertureSize=3)
 
     # INITIALIZE VARS FOR MASK
-    x = 150
-    y = 100
-    w = 350
-    h = 250
+    x = 300
+    y = 150
+    w = 900
+    h = 750
     mask = np.zeros(edges.shape[:2], np.uint8)
     mask[y:y + h, x:x + w] = 255
     maskimg = cv2.bitwise_and(edges, edges, mask=mask)
 
     # DETECT LINES
-    lines = cv2.HoughLinesP(maskimg, rho=1, theta=np.pi / 180, threshold=5, minLineLength=15, maxLineGap=20)
+    lines = cv2.HoughLinesP(maskimg, rho=1, theta=np.pi / 180, threshold=5, minLineLength=5, maxLineGap=5)
 
 
     # IF LINES NOT NONE
     if lines is not None:
 
         midlines = []  # List to store midlines between lines
+        outerlines = []
 
 
         # FOR LINE IN LINES
-        for line1 in lines:
+        for line1 in lines[:300]:
             x1_1, y1_1, x2_1, y2_1 = line1[0]
 
             if x2_1 - x1_1 == 0:
                 slope1 = 100
             else:
                 slope1 = (y2_1 - y1_1) / (x2_1 - x1_1)
+                print(slope1)
 
-            cv2.line(img, (x1_1, y1_1), (x2_1, y2_1), (255, 0, 0), 6)
+            #cv2.line(img, (x1_1, y1_1), (x2_1, y2_1), (255, 0, 0), 6)
+            outerlines.append(((x1_1, y1_1), (x2_1, y2_1)))
 
 
-            for line2 in lines:
+            for line2 in lines[:300]:
                 x1_2, y1_2, x2_2, y2_2 = line2[0]
 
                 if x2_2 - x1_2 == 0:
@@ -53,9 +56,12 @@ while (True):
                 else:
                     slope2 = (y2_2 - y1_2) / (x2_2 - x1_2)
 
-                slopedifference = abs(slope2 - slope1)
+                angle1 = np.arctan(slope1)
+                angle2 = np.arctan(slope2)
 
-                if slopedifference > 0.2:
+                slopedifference = abs(angle2 - angle1)
+
+                if slopedifference > 0.1:
                     pass
                 else:
                     x1avg = int((x1_1 + x1_2) / 2)
@@ -68,7 +74,10 @@ while (True):
 
         # DRAW MIDLINES
         for midline in midlines:
-            cv2.line(img, midline[0], midline[1], (255, 0, 0), 4)
+            cv2.line(img, midline[0], midline[1], (255, 255, 0), 4)
+
+        for outerline in outerlines:
+            cv2.line(img, outerline[0], outerline[1], (255, 0, 0), 4)
 
         # HIGHLIGHT MASK WITH RECTANGLE
         cv2.rectangle(img, (x, y), (x + w, y + h), (255, 255, 255), 2)
